@@ -202,7 +202,7 @@ section{padding:clamp(64px,9vw,112px) 0}
 .countries{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .countries span{border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 14px;font-size:14px;color:#fff}
 .abroad-figs{display:flex;flex-wrap:wrap;gap:32px;margin-top:20px}
-.abroad-figs b{display:block;font-size:28px;font-weight:600;color:#A6CC72;line-height:1.2}
+.abroad-figs b{font-variant-numeric:tabular-nums;display:block;font-size:28px;font-weight:600;color:#A6CC72;line-height:1.2}
 .abroad-figs span{font-size:14px;color:rgba(232,237,243,.75)}
 @media (max-width:860px){.abroad{grid-template-columns:1fr}}
 
@@ -536,6 +536,29 @@ footer .fb b{color:#fff;font-weight:600;font-size:17px}
     z.addEventListener('click',function(){if(d.showModal){d.showModal();}else{d.setAttribute('open','');}if(window.gtag)gtag('event','qr_open');});
     d.addEventListener('click',function(e){if(e.target===d||e.target.hasAttribute('data-close'))d.close();});
   }
+})();
+</script>
+<script>
+(function(){
+  if(!('IntersectionObserver' in window))return;
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  function run(box){
+    box.querySelectorAll('b').forEach(function(b){
+      var m=b.textContent.trim().match(/^([\d,]+)(.*)$/); if(!m)return;
+      var target=parseInt(m[1].replace(/,/g,''),10), suf=m[2], comma=m[1].indexOf(',')>-1, dur=1800, t0=null;
+      function fmt(n){return comma?n.toLocaleString('en-US'):String(n);}
+      function step(ts){
+        if(!b.isConnected)return;
+        if(t0===null)t0=ts;
+        var p=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-p,3);
+        b.textContent=fmt(Math.round(target*e))+suf;
+        if(p<1)requestAnimationFrame(step);
+      }
+      b.textContent=fmt(0)+suf; requestAnimationFrame(step);
+    });
+  }
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(e.target);run(e.target);}});},{threshold:0.35});
+  document.querySelectorAll('.stats,.abroad-figs').forEach(function(el){io.observe(el);});
 })();
 </script>
 </body>
